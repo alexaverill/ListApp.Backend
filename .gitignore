@@ -1,4 +1,5 @@
 ConnectionInfo.js
+database.sqlite
 # Logs
 logs
 *.log
