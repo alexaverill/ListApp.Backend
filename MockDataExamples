@@ -1,0 +1,41 @@
+//mock data exampls
+//USERS
+{
+    "users":[
+        "alex",
+        "Hannah",
+        "Colleen",
+        "Barb"
+    ]
+}
+{
+  "listID": 1,
+  "listName": "Birthday1",
+  "event": "Birthday One",
+  "items": [
+    {
+      "name": "Puppies",
+      "url": "https://www.google.com/search?q=puppies",
+      "price": "1",
+      "isClaimed": false,
+      "quantity": 10000,
+      "comments": "ALl of them"
+    },
+    {
+      "name": "Books",
+      "url": "http://amazon.com",
+      "price": "110",
+      "isClaimed": false,
+      "quantity": 2,
+      "comments": "Some  of them"
+    },
+    {
+      "name": "Socks",
+      "url": "http://socks.com",
+      "price": "5",
+      "isClaimed": true,
+      "quantity": 5,
+      "comments": "Only soft ones"
+    }
+  ]
+}
