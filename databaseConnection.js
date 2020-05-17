@@ -9,17 +9,22 @@ class DatabaseConnection {
         this.isConnected = false;
         this.ShouldRebuildDatabase = false;
         console.log("Starting database class!");
-        this.sequelize = new Sequelize(databaseInfo.databaseName, databaseInfo.databaseUserName, databaseInfo.databasePassword, {
-            host: 'localhost',
-            dialect: 'mysql',
-            pool: {
-                max: 5,
-                min: 0,
-                acquire: 30000,
-                idle: 10000
-            }
-        }
-        );
+        this.sequelize = new Sequelize({
+            dialect:'sqlite',
+            storage:'./database.sqlite'
+        })
+        // this.sequelize = new Sequelize(databaseInfo.databaseName, databaseInfo.databaseUserName, databaseInfo.databasePassword, {
+        //     host: '127.0.0.1',
+        //     port: 6603,
+        //     dialect: 'mysql',
+        //     pool: {
+        //         max: 5,
+        //         min: 0,
+        //         acquire: 30000,
+        //         idle: 10000
+        //     }
+        // }
+        // );
         //define model since I apparently can't use properties?
         //TODO: sort out properties.
         this.User = this.sequelize.define('user', {
