@@ -243,8 +243,8 @@ class DatabaseConnection {
         let response;
         let EventID;
         await this.Events.create({ eventName: name, eventDate: date, comments:_comments })
-            .then(event => { console.log("Event ID: ", event.id); EventID = event.id; response = { status: "Success" } })
-            .catch(err => { console.error(err); response = { status: "Failure" } });
+            .then(event => { console.log("Event ID: ", event.id); EventID = event.id; response = { status: true,id:event.id } })
+            .catch(err => { console.error(err); response = { status: false } });
         //insert recieving and giving info
         giving.map(async (userID)=>{
             await this.EventsHasGiving.create({Events_idEvents:EventID,User_idUsers:userID}).then(event=>{console.log(event.id)})

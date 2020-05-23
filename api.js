@@ -8,11 +8,12 @@ const cors = require('cors');
 let database = new Database();
 database.connectToDatabase();
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
-app.use(cors());
-//app.use(function(req,res,next){
-//	res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
-//	return next();
-//});
+app.use(express.json());
+app.use(cors())
+// app.use(function(req,res,next){
+// 	res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
+// 	return next();
+// });
 //async middleware layer for requests.
 const asyncWrapper = fn => 
     (req, res, next) => {
@@ -69,22 +70,16 @@ app.get('/authenticate',asyncWrapper(async (req,res)=>{
     }
 }));
 //createEvent (accept json packet representing an event)
-app.get("/createEvent",asyncWrapper(async (req, res) => {
-    if (req.query.event == null) {
-        res.json({status:"false",message:"Missing Event Arguement"});
-        return;
+app.post("/createEvent",asyncWrapper(async (req, res) => {
+   // console.log(req);
+    //console.log(req.body.name);
+    const response = await database.createEvent(req.body.name, req.body.date,req.body.comments,[],[]);
+    console.log(response);
+    if(response.status === true){
+    res.json({status:"true",message:"Event was created",id:response.id});
+    }else{
+        res.json({status:"false"});
     }
-    let EventData;
-    try {
-        EventData = JSON.parse(req.query.event);
-
-    } catch{
-        console.log(req.query.event);
-        res.json({status:"false",message:"Unable to parse JSON"});
-        return;
-    }
-    const response = await database.createEvent(EventData.name, EventData.date,EventData.comments,EventData.giving,EventData.recieving);
-    res.json({status:"true",message:"Event was created"});
 }));
 app.get("/getEvents",asyncWrapper(async (req,res)=>{
     const response = await database.getAllEvents();
