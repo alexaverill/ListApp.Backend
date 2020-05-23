@@ -1,3 +1,5 @@
+require('dotenv').config();
+const tokenTools = require('./tokenUtils');
 const express = require('express');
 const Database = require('./databaseConnection');
 const app = express();
@@ -59,7 +61,12 @@ app.get('/authenticate',asyncWrapper(async (req,res)=>{
         return;
     }
     const authResponse = await database.validatePassword(authentication.username,authentication.password);
-    res.json({authentication:authResponse,authKey:123454321}); //super secure key for testing.
+    if(authResponse){
+        let token =  tokenTools.generateToken(authentication.username);
+        res.json({authentication:authResponse,authKey:token}); //super secure key for testing.
+    }else{
+        res.json({authentication:false,authKey:-1});
+    }
 }));
 //createEvent (accept json packet representing an event)
 app.get("/createEvent",asyncWrapper(async (req, res) => {
