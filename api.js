@@ -72,9 +72,7 @@ app.get('/authenticate',asyncWrapper(async (req,res)=>{
 //createEvent (accept json packet representing an event)
 app.post("/createEvent",asyncWrapper(async (req, res) => {
    // console.log(req);
-    //console.log(req.body.name);
-    const response = await database.createEvent(req.body.name, req.body.date,req.body.comments,[],[]);
-    console.log(response);
+    const response = await database.createEvent(req.body.name, req.body.date,req.body.comments,req.body.giving,req.body.recieving);
     if(response.status === true){
     res.json({status:"true",message:"Event was created",id:response.id});
     }else{
