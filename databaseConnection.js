@@ -403,7 +403,8 @@ class DatabaseConnection {
         console.log(existing[0].id);
         //return;
         if(existing[0].id != undefined && existing[0].id >0){
-            response = {status:true,id:existing[0].id};
+            let listItems = await this.getListItems(existing[0].id);
+            response = {status:true,id:existing[0].id, items:listItems};
             return response;
         }
         await this.Lists.create({
@@ -438,6 +439,14 @@ class DatabaseConnection {
     //return a list of List IDs associated with userID 
     async getEventLists(eventId){
 
+    }
+    async getListItems(searchID){
+        return await this.ListItem.findAll({
+            where: {
+                lists_idlists: searchID
+            },
+            attributes: ['id', 'name', 'url', 'price', 'isClaimed', 'quantity', 'comments']
+        });
     }
     async getList(searchID) {
         let returnList = new Object();
