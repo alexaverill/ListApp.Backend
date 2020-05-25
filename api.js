@@ -80,8 +80,10 @@ app.post("/createEvent",asyncWrapper(async (req, res) => {
     }
 }));
 app.get("/getEvents",asyncWrapper(async (req,res)=>{
+    console.log("test");
     const response = await database.getAllEvents();
-    res.json(response);
+    
+    res.json({events:response});
 }));
 //get eventBy Id
 app.get("/getEvent",asyncWrapper(async (req,res)=>{
@@ -157,19 +159,16 @@ app.get("/getUsers",asyncWrapper(async (req,res)=>{
 //         }
 //     ]
 // }
-app.get("/createList",asyncWrapper(async(req,res)=>{
-    console.log(req.query.list);
-    let list;
-    try{
-        list = JSON.parse(req.query.list);
-        
-    }catch{
-        res.json({status:"false",message:"Unable to parse JSON"});
-        return;
-    }
-    let response = await database.createList(list);
+app.post("/createList",asyncWrapper(async(req,res)=>{
+    let response = await database.createList(req.body.event,req.body.name,req.body.userID);
     res.json(response);
 }) );
+app.post("/addListItem",asyncWrapper(async(req,res)=>{
+    let listID = req.body.listID;
+    let itemObj = req.body.listItem;
+    let response = await database.addListItem(listID,itemObj);
+    res.json(response);
+}));
 app.get("/getList",asyncWrapper(async(req,res)=>{
     if(req.query.id == null){
         res.json({status:"Failure",message:"No ID Specified"});

@@ -243,8 +243,8 @@ class DatabaseConnection {
         let response;
         let EventID;
         await this.Events.create({ eventName: name, eventDate: date, comments:_comments })
-            .then(event => { console.log("Event ID: ", event.id); EventID = event.id; response = { status: true,id:event.id } })
-            .catch(err => { console.error(err); response = { status: false } });
+            .then(event => {  EventID = event.id; response = { status: true,id:event.id } })
+            .catch(err => { response = { status: false, message:err} });
         //insert recieving and giving info
         giving.map(async (userID)=>{
             await this.EventsHasGiving.create({Events_idEvents:EventID,User_idUsers:userID}).then(event=>{console.log(event.id)})
@@ -292,21 +292,52 @@ class DatabaseConnection {
             {
                 attributes: ['id', 'eventName', 'eventDate']
             }
-        ).then(users => {
-            response = users;// JSON.stringify(users, null, 4);
+        ).then(events => {
+            response = events;// JSON.stringify(users, null, 4);
            // console.log("All users:", response);
         });
         return response;
 
     }
+    
     async getEventById(searchId) {
-        let response;
+        let response ={
+            id:'',
+            name:'',
+            date:'',
+            recievers:[],
+            givers:[]
+        };
         await this.Events.findAll({
             where: {
                 id: searchId
             },
             attributes: ['id', 'eventName', 'eventDate']
-        }).then(events => { console.log(events); response = events });
+        }).then(events => {
+            response.name = events[0].eventName; 
+            response.id=events[0].id; 
+            response.date = events[0].eventDate; 
+        });
+        
+        await this.EventsHasRecieving.findAll({
+            where:{
+                Events_idEvents:searchId
+            },
+            attributes:[['User_idUsers','id']]
+        }).then(data=>{
+            //console.log(data);
+            response.recievers = data;
+        });
+        
+        await this.EventsHasGiving.findAll({
+            where:{
+                Events_idEvents:searchId
+            },
+            attributes:[['User_idUsers','id']]
+        }).then(data=>{
+            response.givers = data;
+        });
+        //console.log(response);
         return response;
     }
     async claimListItem(listItemId,claimedStatus){
@@ -319,15 +350,22 @@ class DatabaseConnection {
             price: jsonListItem.price,
             isClaimed: jsonListItem.isClaimed,
             quantity: jsonListItem.quantity,
-            comments: itejsonListItemm.comments
+            comments: jsonListItem.comments
         }, {
             where: {
                 id: jsonListItem.id
             }
 
-        });
+        }).then((result)=>{
+            response = { success: "true", id:result.id };
+    })
+    .catch(err => response = { success: "false " + err });
+    console.log(response);
+    return response;
     }
     async createListItem(jsonListItem, listID) {
+        let response;
+        console.log(listID);
         await this.ListItem.create({
             name: jsonListItem.name,
             url: jsonListItem.url,
@@ -335,41 +373,55 @@ class DatabaseConnection {
             isClaimed: jsonListItem.isClaimed,
             lists_idlists: listID,
             quantity: jsonListItem.quantity,
-            comments: itejsonListItemm.comments
+            comments: jsonListItem.comments
         })
-            .then(response = { success: "true" })
-            .catch(err => response = { success: "false " + err });
-        //TODO create segemented reponse so if some fail good info is returned.
+            .then((result)=>{
+                response = { success: "true", id:result.id };
+        })
+        .catch(err => response = { success: "false " + err });
+        console.log(response);
+        return response;
     }
     async handleListItem(jsonListItem, listID) {
-        if (jsonListItem.lists_idlists != null) {
-            await this.updateListItem(jsonListItem);
+        console.log(jsonListItem);
+        if (jsonListItem.id != null) {
+            return await this.updateListItem(jsonListItem);
         } else {
-            await this.createListItem(jsonListItem, listID);
+            return await this.createListItem(jsonListItem, listID);
         }
     }
-    async createList(jsonList) {
+    async createList(_eventID, _listName,_userID){
         let response;
-
-        if (jsonList.id == null || jsonList.id == undefined) {
-            console.log("No id was provided");
-
+        let existing = await this.Lists.findAll({
+            where:{
+                listName: _listName,
+                eventID:_eventID,
+                userID:_userID
+            },
+            attributes:['id']
+        });
+        console.log(existing[0].id);
+        //return;
+        if(existing[0].id != undefined && existing[0].id >0){
+            response = {status:true,id:existing[0].id};
+            return response;
         }
-        let listName = jsonList.name;
-        //create new list!
-        let listID;
-        let event = jsonList.event;
-        let user = jsonList.userid;
-        await this.Lists.create({ listName: listName, eventID: event, userID: user })
-            .then(newList => { console.log("Event ID: ", newList.id); listID = newList.id; })
-            .catch(err => { console.error(err); response = { status: "Failure" } });
-        let items = jsonList.items;
-        //create a list item for each subitem
-        items.forEach(async (item) => {
-            await this.handleListItem(item, listID);
-
+        await this.Lists.create({
+            listName:_listName,
+            eventID: _eventID,
+            userID:_userID
+        }).then(newList=>{
+            response={status:true,id:newList.id};
+        })
+        .catch(err=>{
+            response={status:false,message:err};
         });
         return response;
+    }
+
+    async addListItem(listId,itemObj){
+        console.log(listId);
+        return await this.handleListItem(itemObj,listId);
     }
     async getListInfo(listID) {
         let listInfo = new Object();
@@ -382,6 +434,10 @@ class DatabaseConnection {
             attributes: ['id', 'listName', 'eventID', 'userID']
         }).then(list => { listInfo = list[0] });//need to look into this in more depth.
         return listInfo;
+    }
+    //return a list of List IDs associated with userID 
+    async getEventLists(eventId){
+
     }
     async getList(searchID) {
         let returnList = new Object();
