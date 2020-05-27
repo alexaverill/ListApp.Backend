@@ -14,6 +14,27 @@ app.use(cors())
 // 	res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
 // 	return next();
 // });
+app.use(function(req,res,next){
+    console.log(req.originalUrl);
+    if(req.originalUrl === '/authenticate' || req.originalUrl ==='/verify'){
+        console.log(req.originalUrl);
+        return next();
+    }
+    let token = req.headers['authorization'];
+    if(token === undefined || token.length <0){
+        return res.status(401).json({error:true});
+    }
+    token = token.replace('Bearer','');
+    console.log(token.length);
+    if(token.length <=0){
+        return res.status(401).json({error:true});
+    }
+    if(tokenTools.validateToken(token)){
+        return next();
+    }else{
+        return res.status(401);
+    }
+});
 //async middleware layer for requests.
 const asyncWrapper = fn => 
     (req, res, next) => {
@@ -49,25 +70,19 @@ app.get('/createUser',ensureLoggedIn, asyncWrapper( async (req,res)=>{
     console.log(dbResponse);
     res.json(dbResponse);
 }));
-app.get('/authenticate',asyncWrapper(async (req,res)=>{
-    if(req.query.auth == null){
-        res.json({status:"false",message:"Missing Auth Arguments"});
-        return;
-    }
-    let authentication;
-    try{
-        authentication = JSON.parse(req.query.auth);
-    }catch{
-        res.json({status:"false",message:"Unable to parse json"});
-        return;
-    }
-    const authResponse = await database.validatePassword(authentication.username,authentication.password);
-    if(authResponse){
-        let token =  tokenTools.generateToken(authentication.username);
-        res.json({authentication:authResponse,authKey:token}); //super secure key for testing.
+app.post('/authenticate',asyncWrapper(async (req,res)=>{
+
+    const authResponse = await database.validatePassword(req.body.username,req.body.password);
+    if(authResponse.valid){
+        let token =  tokenTools.generateToken(req.body.username);
+        res.json({id:authResponse.id,authentication:authResponse,authKey:token});
     }else{
         res.json({authentication:false,authKey:-1});
     }
+}));
+app.post('/verify',asyncWrapper(async (req,res)=>{
+    let _status = tokenTools.validateToken(req.body.token);
+    return res.json({status:_status});
 }));
 //createEvent (accept json packet representing an event)
 app.post("/createEvent",asyncWrapper(async (req, res) => {

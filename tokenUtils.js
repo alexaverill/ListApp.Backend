@@ -8,6 +8,20 @@ function generateToken(user){
         expiresIn:60*60*24
     });
 }
+function validateToken(token){
+    if(token == undefined){
+        return false
+    }
+    token = token.trim();
+    let val;
+    try{
+     val = jwt.verify(token,process.env.JWT_SECRET);
+    }catch(e){
+        return false;
+    }
+    return true;
+}
 module.exports = {
-    generateToken
+    generateToken,
+    validateToken
 }

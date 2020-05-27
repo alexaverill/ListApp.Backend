@@ -164,7 +164,7 @@ class DatabaseConnection {
             where:{
                 username:usernameIn
             },
-            attributes:['username','password']
+            attributes:['id','username','password']
         }).then(user=> {userData = user;});
         if(userData == null){//need to see if I can avoid doing this with the promise system.
             return false;
@@ -183,8 +183,11 @@ class DatabaseConnection {
               }); 
 
         });
-        console.log(result);
-        return result;
+        let returnVal = {
+            valid:true,
+            id:userData[0].id
+        }
+        return returnVal;
        
     }
     async hashPassword(passwordIn){
