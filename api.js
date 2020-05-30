@@ -15,6 +15,7 @@ app.use(cors())
 // 	return next();
 // });
 app.use(function(req,res,next){
+    return next();
     console.log(req.originalUrl);
     if(req.originalUrl === '/authenticate' || req.originalUrl ==='/verify'){
         console.log(req.originalUrl);
@@ -22,17 +23,18 @@ app.use(function(req,res,next){
     }
     let token = req.headers['authorization'];
     if(token === undefined || token.length <0){
-        return res.status(401).json({error:true});
+        console.log("Token Error!");
+        return res.json({error:true,message:"Not Logged in!"});
     }
     token = token.replace('Bearer','');
     console.log(token.length);
     if(token.length <=0){
-        return res.status(401).json({error:true});
+        return res.json({error:true,message:"Not Logged in!"});
     }
     if(tokenTools.validateToken(token)){
         return next();
     }else{
-        return res.status(401);
+        return res.json({error:true,message:"Not Logged in!"});
     }
 });
 //async middleware layer for requests.
@@ -107,6 +109,7 @@ app.get("/getEvent",asyncWrapper(async (req,res)=>{
         return;
     }
     const response = await database.getEventById(req.query.id);
+    console.log(response.lists[0].items);
     res.json(response);
 }));
 //likely want to rename this.

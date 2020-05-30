@@ -27,7 +27,12 @@ class DatabaseConnection {
         // );
         //define model since I apparently can't use properties?
         //TODO: sort out properties.
-        this.User = this.sequelize.define('user', {
+        this.User = this.sequelize.define('users', {
+            id: {
+                type: Sequelize.INTEGER,
+                field: 'ID',
+                primaryKey: true
+            },
             // attributes
             username: {
                 type: Sequelize.STRING,
@@ -46,6 +51,7 @@ class DatabaseConnection {
                 allowNull: false
             }
         }, {
+            modelName:'users'
             // options
         });
         this.Lists = this.sequelize.define('lists', {
@@ -55,11 +61,19 @@ class DatabaseConnection {
             },
             eventID: {
                 type: Sequelize.INTEGER,
-                allowNull: false
+                allowNull: false,
+                references: {
+                    model:'events',
+                    key:'id'
+                }
             },
             userID: {
                 type: Sequelize.INTEGER,
-                allowNull: false
+                allowNull: false,
+                references: {
+                    model:'users',
+                    key:'id'
+                }
             }
         }, {
             // options
@@ -81,9 +95,21 @@ class DatabaseConnection {
                 type: Sequelize.TINYINT,
 
             },
+            claimedBy:{
+                type: Sequelize.INTEGER,
+                
+                references: {
+                    model:this.User,
+                    key:'id'
+                }
+            },
             lists_idlists: {
                 type: Sequelize.INTEGER,
-                allowNull: false
+                allowNull: false,
+                references: {
+                    model:this.Lists,
+                    key:'id'
+                }
             },
             quantity: {
                 type: Sequelize.INTEGER,
@@ -107,6 +133,7 @@ class DatabaseConnection {
                 type:Sequelize.STRING
             }
         }, {
+            modelName:'events'
             // options
         });
         this.EventsHasGiving = this.sequelize.define('events_has_giving', {
@@ -137,12 +164,13 @@ class DatabaseConnection {
         });
         //mainly for development, should remove in prod.
         if (this.ShouldRebuildDatabase) {
-            this.User.sync({ force: true }).then(() => console.log("CreatedUserTable")).catch(err => console.log(err));
-            this.Lists.sync({ force: true }).then(() => console.log("Created List Table")).catch(err => console.log(err));
-            this.ListItem.sync({ force: true }).then(() => console.log("Created ListItem Table")).catch(err => console.log(err));
             this.Events.sync({ force: true }).then(() => console.log("Craeted Event Table")).catch(err => console.log(err));
             this.EventsHasGiving.sync({ force: true }).then(() => console.log("Created EventHasGiving Lookup Table")).catch(err => console.log(err));
             this.EventsHasRecieving.sync({ force: true }).then(() => console.log("Created EventHasRecieving Lookup Table")).catch(err => console.log(err));
+            this.User.sync({ force: true }).then(() => console.log("CreatedUserTable")).catch(err => console.log(err));
+            this.Lists.sync({ force: true }).then(() => console.log("Created List Table")).catch(err => console.log(err));
+            //this.ListItem.sync({ force: true }).then(() => console.log("Created ListItem Table")).catch(err => console.log(err));
+            
         }
 
     }
@@ -309,7 +337,8 @@ class DatabaseConnection {
             name:'',
             date:'',
             recievers:[],
-            givers:[]
+            givers:[],
+            lists:[1,2,3]
         };
         await this.Events.findAll({
             where: {
@@ -340,7 +369,12 @@ class DatabaseConnection {
         }).then(data=>{
             response.givers = data;
         });
-        //console.log(response);
+        await this.getListsForEvent(searchId).then(data=>{
+            //console.log(data);
+            //response.lists = data;
+        });
+
+        //console.log(response.lists[0].items);
         return response;
     }
     async claimListItem(listItemId,claimedStatus){
@@ -395,21 +429,24 @@ class DatabaseConnection {
     }
     async createList(_eventID, _listName,_userID){
         let response;
-        let existing = await this.Lists.findAll({
+        let existing;
+         existing= await this.Lists.findAll({
             where:{
                 listName: _listName,
                 eventID:_eventID,
                 userID:_userID
             },
             attributes:['id']
-        });
-        console.log(existing[0].id);
+        }).catch(error=>{Console.log("error")});
         //return;
-        if(existing[0].id != undefined && existing[0].id >0){
-            let listItems = await this.getListItems(existing[0].id);
-            response = {status:true,id:existing[0].id, items:listItems};
-            return response;
+        if(existing != undefined && existing[0] != undefined){
+            if(existing[0].id != undefined && existing[0].id >0){
+                let listItems = await this.getListItems(existing[0].id);
+                response = {status:true,id:existing[0].id, items:listItems};
+                return response;
+            }
         }
+        console.log("Creating new List!");
         await this.Lists.create({
             listName:_listName,
             eventID: _eventID,
@@ -418,6 +455,7 @@ class DatabaseConnection {
             response={status:true,id:newList.id};
         })
         .catch(err=>{
+            console.log(err);
             response={status:false,message:err};
         });
         return response;
@@ -439,10 +477,19 @@ class DatabaseConnection {
         }).then(list => { listInfo = list[0] });//need to look into this in more depth.
         return listInfo;
     }
-    //return a list of List IDs associated with userID 
-    async getEventLists(eventId){
-
+    async getListsForEvent(event){
+        let lists;
+        await this.Lists.findAll({
+            where:{
+                eventID:event
+            },
+            include:[{model:this.ListItem, as: 'Items'}]
+        }).then(data=>{
+            console.log(JSON.stringify(data));
+        });
+        return [];
     }
+    //return a list of List IDs associated with userID 
     async getListItems(searchID){
         return await this.ListItem.findAll({
             where: {
