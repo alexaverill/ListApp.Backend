@@ -3,8 +3,7 @@ const Sequelize = require('sequelize');
 const { databaseInfo } = require('./ConnectionInfo');
 const bcrypt = require('bcrypt');
 const UserModel = require('./data_models/users');
-const EventGiver = require('./data_models/event_giver');
-const EventReceiver = require('./data_models/event_reciever');
+
 const ListModel = require('./data_models/lists');
 const EventsModel = require('./data_models/events');
 const ListItemModel = require('./data_models/list_item');
@@ -37,11 +36,18 @@ Users.belongsToMany(Events,{through:EventHasReciever,unique:false});
 ListItems.belongsTo(List);
 List.belongsTo(Events);
 
-sequelize.sync().then(() =>{
+sequelize.sync({force:true}).then(() =>{
     console.log("Created Tables");
 });
 console.log("Test");
-
+ module.exports = {
+     Users,
+     List,
+     Events,
+     ListItems,
+     EventHasGiver,
+     EventHasReciever
+ }
 /*
 class DatabaseConnection {
 
