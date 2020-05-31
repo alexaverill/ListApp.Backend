@@ -5,8 +5,8 @@ const Database = require('./databaseConnection');
 const app = express();
 const port = 5000;
 const cors = require('cors');
-let database = new Database();
-database.connectToDatabase();
+//let database = new Database();
+//database.connectToDatabase();
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 app.use(express.json());
 app.use(cors())

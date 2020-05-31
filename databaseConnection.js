@@ -2,7 +2,47 @@
 const Sequelize = require('sequelize');
 const { databaseInfo } = require('./ConnectionInfo');
 const bcrypt = require('bcrypt');
+const UserModel = require('./data_models/users');
+const EventGiver = require('./data_models/event_giver');
+const EventReceiver = require('./data_models/event_reciever');
+const ListModel = require('./data_models/lists');
+const EventsModel = require('./data_models/events');
+const ListItemModel = require('./data_models/list_item');
+const sequelize = new Sequelize({
+    dialect:'sqlite',
+    storage:'./database1.sqlite'
+})
+// this.sequelize = new Sequelize(databaseInfo.databaseName, databaseInfo.databaseUserName, databaseInfo.databasePassword, {
+//     host: '127.0.0.1',
+//     port: 6603,
+//     dialect: 'mysql',
+//     pool: {
+//         max: 5,
+//         min: 0,
+//         acquire: 30000,
+//         idle: 10000
+//     }
+// }
+// );
+const Users = UserModel(sequelize,Sequelize);
+const List = ListModel(sequelize,Sequelize);
+const Events = EventsModel(sequelize,Sequelize);
+const ListItems = ListItemModel(sequelize,Sequelize);
+const EventHasGiver = sequelize.define('hasGiver',{});
+const EventHasReciever = sequelize.define('hasReciever',{});
 
+Users.belongsToMany(Events,{through:EventHasGiver, unique:false});
+Users.belongsToMany(Events,{through:EventHasReciever,unique:false});
+
+ListItems.belongsTo(List);
+List.belongsTo(Events);
+
+sequelize.sync().then(() =>{
+    console.log("Created Tables");
+});
+console.log("Test");
+
+/*
 class DatabaseConnection {
 
     constructor() {
@@ -520,3 +560,4 @@ class DatabaseConnection {
 }
 
 module.exports = DatabaseConnection;
+*/
