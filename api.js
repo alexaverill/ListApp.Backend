@@ -8,7 +8,7 @@ const cors = require('cors');
 
 const Users = require('./UserFunctions');
 const Events = require('./EventFunctions');
-
+const Lists = require('./ListFunction');
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 app.use(express.json());
 app.use(cors())
@@ -169,7 +169,7 @@ app.get("/getUsers",asyncWrapper(async (req,res)=>{
 //     ]
 // }
 app.post("/createList",asyncWrapper(async(req,res)=>{
-    let response = await database.createList(req.body.event,req.body.name,req.body.userID);
+    let response = await Lists.createList(req.body.event,req.body.name,req.body.userID);
     res.json(response);
 }) );
 app.post("/addListItem",asyncWrapper(async(req,res)=>{

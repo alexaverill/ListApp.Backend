@@ -1,4 +1,4 @@
-const {Events,sequelize,Users,give} = require('./databaseConnection');
+const {Events,sequelize,Users,List,give} = require('./databaseConnection');
 async function createEvent(name, date,_comments, giving, recieving) {
     let response;
     let EventID;
@@ -110,6 +110,10 @@ async function getEventById(searchId) {
             model:Users,
             as:'Receivers',
             attributes:['id','username']
+            
+        },
+        {
+            model:List,
             
         }]
 

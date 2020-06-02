@@ -35,8 +35,11 @@ Users.belongsToMany(Events,{as:"Recieves",through:recieve,unique:false});
 Events.belongsToMany(Users,{as:"Givers",through:give,unique:false});
 Events.belongsToMany(Users,{as:"Receivers",through:recieve,unique:false});
 ListItems.belongsTo(List);
+List.hasMany(ListItems);
 List.belongsTo(Events);
 List.belongsTo(Users);
+Events.hasMany(List);
+Users.hasMany(List);
 sequelize.sync({force:false}).then(() =>{
     console.log("Created Tables");
 });

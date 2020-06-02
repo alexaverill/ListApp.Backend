@@ -26,7 +26,7 @@ return response;
 async function createListItem(jsonListItem, listID) {
     let response;
     console.log(listID);
-    await this.ListItem.create({
+    let newItem = await this.ListItem.create({
         name: jsonListItem.name,
         url: jsonListItem.url,
         price: jsonListItem.price,
@@ -37,9 +37,10 @@ async function createListItem(jsonListItem, listID) {
     })
         .then((result)=>{
             response = { success: "true", id:result.id };
+            return result;
     })
     .catch(err => response = { success: "false " + err });
-    console.log(response);
+    newItem.setList(listID);
     return response;
 }
 async function handleListItem(jsonListItem, listID) {
@@ -53,34 +54,38 @@ async function handleListItem(jsonListItem, listID) {
 async function createList(_eventID, _listName,_userID){
     let response;
     let existing;
-     existing= await this.Lists.findAll({
+     existing= await List.findAll({
         where:{
             listName: _listName,
             eventID:_eventID,
             userID:_userID
         },
         attributes:['id']
-    }).catch(error=>{Console.log("error")});
+    }).then(data=>{return data;}).catch(error=>{Console.log("error")});
     //return;
+    console.log(existing);
     if(existing != undefined && existing[0] != undefined){
         if(existing[0].id != undefined && existing[0].id >0){
-            let listItems = await this.getListItems(existing[0].id);
+           // let listItems = await this.getListItems(existing[0].id);
             response = {status:true,id:existing[0].id, items:listItems};
             return response;
         }
     }
     console.log("Creating new List!");
-    await this.Lists.create({
+    let newList = await List.create({
         listName:_listName,
         eventID: _eventID,
         userID:_userID
     }).then(newList=>{
         response={status:true,id:newList.id};
+        return newList;
     })
     .catch(err=>{
         console.log(err);
         response={status:false,message:err};
     });
+    newList.setUser(_userID);
+    newList.setEvent(_eventID);
     return response;
 }
 
@@ -142,5 +147,6 @@ async function getList(searchID) {
 }
 
 module.exports={
-    createList
+    createList,
+    addListItem
 }
