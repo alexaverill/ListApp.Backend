@@ -7,6 +7,8 @@ const port = 5000;
 const cors = require('cors');
 
 const Users = require('./UserFunctions');
+const Events = require('./EventFunctions');
+
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 app.use(express.json());
 app.use(cors())
@@ -43,19 +45,9 @@ const asyncWrapper = fn =>
         Promise.resolve(fn(req, res, next))
         .catch(next);   
 };
-function ensureLoggedIn(req,response,next){
-    if(req.query.authKey = 123454321){
-        next();
-    }else{
-        response.json({status:false,message:"Invalid Credentials. Please Log In"});
-        let err = "Invalid Credentials";
-        Console.log("error");
-        //next(err);
-    }
 
-}
 
-app.get('/createUser',ensureLoggedIn, asyncWrapper( async (req,res)=>{
+app.get('/createUser', asyncWrapper( async (req,res)=>{
    if (req.query.user == null) {
         res.json({status:"false",message:"Missing User Arguement"});
         return;
@@ -68,7 +60,7 @@ app.get('/createUser',ensureLoggedIn, asyncWrapper( async (req,res)=>{
         res.json({status:"false",message:"Unable to parse JSON"});
         return;
     }
-    const dbResponse = await database.createUser(userData.username, userData.password, userData.email, userData.birthday);
+    const dbResponse = await Users.createUser(userData.username, userData.password, userData.email, userData.birthday);
     console.log(dbResponse);
     res.json(dbResponse);
 }));
@@ -88,10 +80,10 @@ app.post('/verify',asyncWrapper(async (req,res)=>{
 }));
 //createEvent (accept json packet representing an event)
 app.post("/createEvent",asyncWrapper(async (req, res) => {
-   // console.log(req);
-    const response = await database.createEvent(req.body.name, req.body.date,req.body.comments,req.body.giving,req.body.recieving);
+    const response = await Events.createEvent(req.body.name, req.body.date,req.body.comments,req.body.giving,req.body.recieving);
+    console.log(JSON.stringify(response));
     if(response.status === true){
-    res.json({status:"true",message:"Event was created",id:response.id});
+    res.json({status:"true",message:"Event was created",id:response.event.id});
     }else{
         res.json({status:"false"});
     }
@@ -108,8 +100,7 @@ app.get("/getEvent",asyncWrapper(async (req,res)=>{
         res.json({status:"Failure, missing ID arguement!"});
         return;
     }
-    const response = await database.getEventById(req.query.id);
-    console.log(response.lists[0].items);
+    const response = await Events.getEventById(req.query.id);
     res.json(response);
 }));
 //likely want to rename this.

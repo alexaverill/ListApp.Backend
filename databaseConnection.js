@@ -1,7 +1,7 @@
 'use strict';
 const Sequelize = require('sequelize');
 const { databaseInfo } = require('./ConnectionInfo');
-const bcrypt = require('bcrypt');
+
 const UserModel = require('./data_models/users');
 
 const ListModel = require('./data_models/lists');
@@ -9,7 +9,7 @@ const EventsModel = require('./data_models/events');
 const ListItemModel = require('./data_models/list_item');
 const sequelize = new Sequelize({
     dialect:'sqlite',
-    storage:'./database1.sqlite'
+    storage:'./database.sqlite'
 })
 // this.sequelize = new Sequelize(databaseInfo.databaseName, databaseInfo.databaseUserName, databaseInfo.databasePassword, {
 //     host: '127.0.0.1',
@@ -27,26 +27,28 @@ const Users = UserModel(sequelize,Sequelize);
 const List = ListModel(sequelize,Sequelize);
 const Events = EventsModel(sequelize,Sequelize);
 const ListItems = ListItemModel(sequelize,Sequelize);
-const EventHasGiver = sequelize.define('hasGiver',{});
-const EventHasReciever = sequelize.define('hasReciever',{});
+const give = sequelize.define('give',{});
+const recieve = sequelize.define('recieve',{});
 
-Users.belongsToMany(Events,{through:EventHasGiver, unique:false});
-Users.belongsToMany(Events,{through:EventHasReciever,unique:false});
-
+Users.belongsToMany(Events,{as:"Gives",through:give, unique:false });
+Users.belongsToMany(Events,{as:"Recieves",through:recieve,unique:false});
+Events.belongsToMany(Users,{as:"Givers",through:give,unique:false});
+Events.belongsToMany(Users,{as:"Receivers",through:recieve,unique:false});
 ListItems.belongsTo(List);
 List.belongsTo(Events);
-
-sequelize.sync({force:true}).then(() =>{
+List.belongsTo(Users);
+sequelize.sync({force:false}).then(() =>{
     console.log("Created Tables");
 });
-console.log("Test");
+
  module.exports = {
+     sequelize,
      Users,
      List,
      Events,
      ListItems,
-     EventHasGiver,
-     EventHasReciever
+     give,
+     recieve
  }
 /*
 class DatabaseConnection {

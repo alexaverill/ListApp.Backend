@@ -1,10 +1,10 @@
-const {User} = require('./databaseConnection');
-
-async validatePassword(usernameIn,passwordIn){
+const {Users,sequelize} = require('./databaseConnection');
+const bcrypt = require('bcrypt');
+async function validatePassword(usernameIn,passwordIn){
     console.log(passwordIn);
     let userData;
     //attempt to get user row.
-    await this.User.findAll({
+    await Users.findAll({
         where:{
             username:usernameIn
         },
@@ -34,7 +34,7 @@ async validatePassword(usernameIn,passwordIn){
     return returnVal;
    
 }
-async hashPassword(passwordIn){
+async function hashPassword(passwordIn){
     let saltRounds = 10;
     const hashed = await new Promise((resolve,reject)=>{
         bcrypt.hash(passwordIn,saltRounds,(err,hash)=>{
@@ -47,15 +47,15 @@ async hashPassword(passwordIn){
     });
      return hashed;
 }
-async createUser(name, password, email, birthday) {
+async function createUser(name, password, email, birthday) {
     //TODO limit to only one user per username
     let userCount;
-    await this.User.findAll({
+    await Users.findAll({
         where:{
             username:name,
             email:email
         },
-        attributes:[[this.sequelize.fn('COUNT',this.sequelize.col('username')),'countUsername'],[this.sequelize.fn('COUNT',this.sequelize.col('email')),'countEmail']]
+        attributes:[[sequelize.fn('COUNT',sequelize.col('username')),'countUsername'],[sequelize.fn('COUNT',sequelize.col('email')),'countEmail']]
     }).then(result => userCount = result);
     let possibleErrors = [];
     if(userCount[0].dataValues.countUsername > 0){
@@ -70,15 +70,15 @@ async createUser(name, password, email, birthday) {
         return possibleErrors;
     }
     let response;
-    let encryptedPass = await this.hashPassword(password);
-    await this.User.create({ username: name, password: encryptedPass, email: email, birthday: birthday })
+    let encryptedPass = await hashPassword(password);
+    await Users.create({ username: name, password: encryptedPass, email: email, birthday: birthday })
         .then(person => { console.log("Persons ID is :", person.id); response = { status: "Success" } })
         .catch(err => { console.error("There was a problem! ", err); response = { status: "Failure" } });
     return response;
 }
-async getUsers() {
+async function getUsers() {
     let response;
-    await this.User.findAll({
+    await Users.findAll({
         attributes: ['id', 'username']
     }).then(people => { response = people });
     return response;
