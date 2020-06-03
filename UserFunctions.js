@@ -86,5 +86,6 @@ async function getUsers() {
 module.exports = {
     getUsers,
     createUser,
-    validatePassword
+    validatePassword,
+    getUsers
 }

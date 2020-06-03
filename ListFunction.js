@@ -1,10 +1,23 @@
 const {Users,Events,List,ListItems,sequelize} = require('./databaseConnection');
 
-async function claimListItem(listItemId,claimedStatus){
-    await this.ListItem.update({isClaimed:claimedStatus},{where:{id:listItemId}}).then(updated=>{console.log(updated)});
+async function claimListItem(listItemId,userID,claimedStatus){
+    return await ListItems.update(
+        {
+            isClaimed:true
+        },
+        {
+            where:{
+                id:listItemId
+            }
+        }).then(updated=>{
+            console.log(updated); 
+            return {status:true};
+        }).catch(err=>{
+            return {status:false};
+        });
 }
 async function updateListItem(jsonListItem) {
-    await this.ListItem.update({
+    await ListItems.update({
         name: jsonListItem.name,
         url: jsonListItem.url,
         price: jsonListItem.price,
@@ -26,7 +39,7 @@ return response;
 async function createListItem(jsonListItem, listID) {
     let response;
     console.log(listID);
-    let newItem = await this.ListItem.create({
+    let newItem = await ListItems.create({
         name: jsonListItem.name,
         url: jsonListItem.url,
         price: jsonListItem.price,
@@ -46,9 +59,9 @@ async function createListItem(jsonListItem, listID) {
 async function handleListItem(jsonListItem, listID) {
     console.log(jsonListItem);
     if (jsonListItem.id != null) {
-        return await this.updateListItem(jsonListItem);
+        return await updateListItem(jsonListItem);
     } else {
-        return await this.createListItem(jsonListItem, listID);
+        return await createListItem(jsonListItem, listID);
     }
 }
 async function createList(_eventID, _listName,_userID){
@@ -60,14 +73,13 @@ async function createList(_eventID, _listName,_userID){
             eventID:_eventID,
             userID:_userID
         },
-        attributes:['id']
+        include:[ListItems]
     }).then(data=>{return data;}).catch(error=>{Console.log("error")});
     //return;
-    console.log(existing);
+    console.log(JSON.stringify(existing));
     if(existing != undefined && existing[0] != undefined){
         if(existing[0].id != undefined && existing[0].id >0){
-           // let listItems = await this.getListItems(existing[0].id);
-            response = {status:true,id:existing[0].id, items:listItems};
+            response = {status:true,id:existing[0].id,list:existing};
             return response;
         }
     }
@@ -88,14 +100,9 @@ async function createList(_eventID, _listName,_userID){
     newList.setEvent(_eventID);
     return response;
 }
-
-async function addListItem(listId,itemObj){
-    console.log(listId);
-    return await this.handleListItem(itemObj,listId);
-}
 async function getListInfo(listID) {
     let listInfo = new Object();
-    await this.Lists.findAll({
+    await List.findAll({
         where:
         {
             id: listID
@@ -107,7 +114,7 @@ async function getListInfo(listID) {
 }
 async function getListsForEvent(event){
     let lists;
-    await this.Lists.findAll({
+    await List.findAll({
         where:{
             eventID:event
         },
@@ -119,7 +126,7 @@ async function getListsForEvent(event){
 }
 //return a list of List IDs associated with userID 
 async function getListItems(searchID){
-    return await this.ListItem.findAll({
+    return await List.findAll({
         where: {
             lists_idlists: searchID
         },
@@ -127,26 +134,18 @@ async function getListItems(searchID){
     });
 }
 async function getList(searchID) {
-    let returnList = new Object();
-
-    let listInfo = await this.getListInfo(searchID);
-    returnList.listName = listInfo.listName;
-    returnList.id = listInfo.id;
-    returnList.eventID = listInfo.eventID;
-    returnList.items = [];
-    await this.ListItem.findAll({
-        where: {
-            lists_idlists: searchID
+    let existing = await List.findAll({
+        where:{
+            id:searchID
         },
-        attributes: ['id', 'name', 'url', 'price', 'isClaimed', 'quantity', 'comments']
-    }).then(item => {
-        //console.log(item);
-        returnList.items.push(item);
-    });
-    return returnList;
+        include:[ListItems]
+    }).then(data=>{return data;}).catch(error=>{Console.log("error")});
+    return existing;
 }
 
 module.exports={
     createList,
-    addListItem
+    handleListItem,
+    claimListItem,
+    getList
 }

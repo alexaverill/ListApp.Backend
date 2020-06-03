@@ -17,7 +17,7 @@ app.use(cors())
 // 	return next();
 // });
 app.use(function(req,res,next){
-    return next();
+    //return next();
     console.log(req.originalUrl);
     if(req.originalUrl === '/authenticate' || req.originalUrl ==='/verify'){
         console.log(req.originalUrl);
@@ -66,7 +66,7 @@ app.get('/createUser', asyncWrapper( async (req,res)=>{
 }));
 app.post('/authenticate',asyncWrapper(async (req,res)=>{
 
-    const authResponse = await database.validatePassword(req.body.username,req.body.password);
+    const authResponse = await Users.validatePassword(req.body.username,req.body.password);
     if(authResponse.valid){
         let token =  tokenTools.generateToken(req.body.username);
         res.json({id:authResponse.id,authentication:authResponse,authKey:token});
@@ -90,7 +90,7 @@ app.post("/createEvent",asyncWrapper(async (req, res) => {
 }));
 app.get("/getEvents",asyncWrapper(async (req,res)=>{
     console.log("test");
-    const response = await database.getAllEvents();
+    const response = await Events.getAllEvents();
     
     res.json({events:response});
 }));
@@ -129,7 +129,7 @@ app.get("/isReciever",asyncWrapper(async (req,res)=>{
     
 }));
 app.get("/getUsers",asyncWrapper(async (req,res)=>{
-    const response = await database.getUsers();
+    const response = await Users.getUsers();
     res.json(response);
 }));
 //createList (create a list on a json packet, or update existing list)
@@ -175,7 +175,7 @@ app.post("/createList",asyncWrapper(async(req,res)=>{
 app.post("/addListItem",asyncWrapper(async(req,res)=>{
     let listID = req.body.listID;
     let itemObj = req.body.listItem;
-    let response = await database.addListItem(listID,itemObj);
+    let response = await Lists.handleListItem(itemObj,listID);
     res.json(response);
 }));
 app.get("/getList",asyncWrapper(async(req,res)=>{
@@ -183,16 +183,15 @@ app.get("/getList",asyncWrapper(async(req,res)=>{
         res.json({status:"Failure",message:"No ID Specified"});
         return;
     }
-    let response = await database.getList(req.query.id);
+    let response = await Lists.getList(req.query.id);
     res.json(response);
 }));
-//editUser (change username and password, or address)
-//editList
 
+app.post('/claimItem', asyncWrapper(async(req,res)=>{
+    let response = await Lists.claimListItem(req.body.itemID,req.body.userID);
+    res.json(response);
+}));
 
 app.get('/', (req, res) => res.send('Hello World!'))
 
-app.get('/claimItem', (request, response) => {
-
-});
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

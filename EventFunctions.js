@@ -83,7 +83,7 @@ async function RecieverInEvent(UserID,EventID){
 }
 async  function getAllEvents() {
     let response;
-    await this.Events.findAll(
+    await Events.findAll(
         {
             attributes: ['id', 'eventName', 'eventDate']
         }
