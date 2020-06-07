@@ -16,6 +16,9 @@ module.exports = (sequelize, type)=>{
         type: type.TINYINT,
 
     },
+    claimedBy:{
+        type:type.INTEGER,
+    },
     quantity: {
         type: type.INTEGER,
     },

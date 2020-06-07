@@ -1,9 +1,28 @@
 const {Users,Events,List,ListItems,sequelize} = require('./databaseConnection');
 
 async function claimListItem(listItemId,userID,claimedStatus){
+    console.log("User: "+userID);
     return await ListItems.update(
         {
-            isClaimed:true
+            isClaimed:true,
+            claimedBy:userID
+        },
+        {
+            where:{
+                id:listItemId
+            }
+        }).then(updated=>{
+            console.log(updated); 
+            return {status:true};
+        }).catch(err=>{
+            return {status:false};
+        });
+}
+async function unClaimListItem(listItemId,userID,claimedStatus){
+    return await ListItems.update(
+        {
+            isClaimed:false,
+            claimedBy:null
         },
         {
             where:{
@@ -147,5 +166,6 @@ module.exports={
     createList,
     handleListItem,
     claimListItem,
-    getList
+    getList,
+    unClaimListItem
 }

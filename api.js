@@ -192,6 +192,10 @@ app.post('/claimItem', asyncWrapper(async(req,res)=>{
     res.json(response);
 }));
 
+app.post('/unclaimItem', asyncWrapper(async(req,res)=>{
+    let response = await Lists.unClaimListItem(req.body.itemID,req.body.userID);
+    res.json(response);
+}));
 app.get('/', (req, res) => res.send('Hello World!'))
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

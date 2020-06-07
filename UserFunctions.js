@@ -27,9 +27,11 @@ async function validatePassword(usernameIn,passwordIn){
           }); 
 
     });
+   
     let returnVal = {
-        valid:true,
-        id:userData[0].id
+        valid:result,
+        id:userData[0].id,
+        username:userData[0].username
     }
     return returnVal;
    
