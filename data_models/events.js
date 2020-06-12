@@ -13,7 +13,7 @@ module.exports = (sequelize, type) => {
             type: type.DATE,
             allowNull: false
         },
-        iamge:{
+        image:{
             type:type.STRING
         },
         comments: {

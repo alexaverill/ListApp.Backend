@@ -41,7 +41,7 @@ Users.belongsToMany(Events,{as:"Gives",through:give, unique:false });
 Users.belongsToMany(Events,{as:"Recieves",through:recieve,unique:false});
 Events.belongsToMany(Users,{as:"Givers",through:give,unique:false});
 Events.belongsToMany(Users,{as:"Receivers",through:recieve,unique:false});
-Users.hasMany(ListItems,{as:'Claimed',through:claims,unique:false});
+Users.belongsToMany(ListItems,{as:'Claimed',through:claims,unique:false});
 ListItems.belongsTo(List);
 List.hasMany(ListItems);
 List.belongsTo(Events);

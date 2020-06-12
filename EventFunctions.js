@@ -1,27 +1,8 @@
 const {Events,sequelize,Users,List,give,ListItems} = require('./databaseConnection');
-async function createEvent(name, date,_comments, giving, recieving) {
+async function createEvent(name, date,_comments, giving, recieving, _image) {
     let response;
     let EventID;
-    console.log(giving);
-    //find all givers
-    // let givers = await giving.map(giver => {
-    //     console.log(giver);
-    //     Users.findAll({
-    //         where:{
-    //             id:giver
-    //         }
-    //     })
-    // });
-    // console.log("Givers: "+givers);
-    // let recievers = await recieving.map(rec=>{
-    //     Users.findAll({
-    //         where:{
-    //             id:rec
-    //         }
-    //     })
-    // });
-    //console.log("Recievers: "+recievers);
-    let event  = await Events.create({ eventName: name, eventDate: date, comments:_comments }).then(data=>{
+    let event  = await Events.create({ eventName: name, eventDate: date, comments:_comments,image:_image }).then(data=>{
         return data;
     })
         .catch(err => { console.log(err); response = { status: false, message:err} });
@@ -85,7 +66,7 @@ async  function getAllEvents() {
     let response;
     await Events.findAll(
         {
-            attributes: ['id', 'eventName', 'eventDate']
+            attributes: ['id', 'eventName', 'eventDate','image']
         }
     ).then(events => {
         response = events;// JSON.stringify(users, null, 4);

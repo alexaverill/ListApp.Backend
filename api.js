@@ -80,7 +80,7 @@ app.post('/verify',asyncWrapper(async (req,res)=>{
 }));
 //createEvent (accept json packet representing an event)
 app.post("/createEvent",asyncWrapper(async (req, res) => {
-    const response = await Events.createEvent(req.body.name, req.body.date,req.body.comments,req.body.giving,req.body.recieving);
+    const response = await Events.createEvent(req.body.name, req.body.date,req.body.comments,req.body.giving,req.body.recieving,req.body.image);
     console.log(JSON.stringify(response));
     if(response.status === true){
     res.json({status:"true",message:"Event was created",id:response.event.id});
@@ -132,42 +132,7 @@ app.get("/getUsers",asyncWrapper(async (req,res)=>{
     const response = await Users.getUsers();
     res.json(response);
 }));
-//createList (create a list on a json packet, or update existing list)
-//Example Packet: ID in the parent, and the items will be null if the list is new
-// {
-//     "name":"Test",
-//      "event":1,
-//"userid":1,
-//     "items":[
-//         {
-//             "name":"Apples",
-//             "url":"http://google.com",
-//             "price":"1.00",
-//             "isClaimed":false,
-//             "lists_idLists":null,
-//             "quantity":100,
-//             "comments":""
-//         },
-//  {
-//             "name":"Banana's",
-//             "url":"http://google.com",
-//             "price":"10.00",
-//             "isClaimed":false,
-//             "lists_idLists":null,
-//             "quantity":100,
-//             "comments":""
-//         },
-//  {
-//             "name":"Catas",
-//             "url":"http://google.com",
-//             "price":"100.00",
-//             "isClaimed":false,
-//             "lists_idLists":null,
-//             "quantity":100,
-//             "comments":"I NEEED MORE"
-//         }
-//     ]
-// }
+
 app.post("/createList",asyncWrapper(async(req,res)=>{
     let response = await Lists.createList(req.body.event,req.body.name,req.body.userID);
     res.json(response);
