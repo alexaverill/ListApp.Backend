@@ -29,11 +29,19 @@ const Events = EventsModel(sequelize,Sequelize);
 const ListItems = ListItemModel(sequelize,Sequelize);
 const give = sequelize.define('give',{});
 const recieve = sequelize.define('recieve',{});
-
+const claims = sequelize.define('claims',{quantity: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+},
+comments:{
+    type:Sequelize.STRING
+}
+})
 Users.belongsToMany(Events,{as:"Gives",through:give, unique:false });
 Users.belongsToMany(Events,{as:"Recieves",through:recieve,unique:false});
 Events.belongsToMany(Users,{as:"Givers",through:give,unique:false});
 Events.belongsToMany(Users,{as:"Receivers",through:recieve,unique:false});
+Users.hasMany(ListItems,{as:'Claimed',through:claims,unique:false});
 ListItems.belongsTo(List);
 List.hasMany(ListItems);
 List.belongsTo(Events);

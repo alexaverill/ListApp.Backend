@@ -13,6 +13,9 @@ module.exports = (sequelize, type) => {
             type: type.DATE,
             allowNull: false
         },
+        iamge:{
+            type:type.STRING
+        },
         comments: {
             type: type.STRING
         }

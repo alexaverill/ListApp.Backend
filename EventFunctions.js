@@ -1,4 +1,4 @@
-const {Events,sequelize,Users,List,give} = require('./databaseConnection');
+const {Events,sequelize,Users,List,give,ListItems} = require('./databaseConnection');
 async function createEvent(name, date,_comments, giving, recieving) {
     let response;
     let EventID;
@@ -114,7 +114,14 @@ async function getEventById(searchId) {
         },
         {
             model:List,
-            
+            include:[{
+                model:Users,
+                attributes:['username']
+            },
+            {
+                model:ListItems,
+                attributes:['id']
+            }]
         }]
 
     }).then(data=>{

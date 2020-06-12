@@ -157,7 +157,19 @@ async function getList(searchID) {
         where:{
             id:searchID
         },
-        include:[ListItems]
+        include:[
+            {
+                model:Users,
+                attributes:['id','username']
+                
+            },
+            {
+                model:ListItems,
+            },
+            {
+                model:Events
+            }
+            ]
     }).then(data=>{return data;}).catch(error=>{Console.log("error")});
     return existing;
 }
