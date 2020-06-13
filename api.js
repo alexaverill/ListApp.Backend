@@ -64,6 +64,7 @@ app.get('/createUser', asyncWrapper( async (req,res)=>{
     console.log(dbResponse);
     res.json(dbResponse);
 }));
+
 app.post('/authenticate',asyncWrapper(async (req,res)=>{
 
     const authResponse = await Users.validatePassword(req.body.username,req.body.password);
@@ -103,31 +104,7 @@ app.get("/getEvent",asyncWrapper(async (req,res)=>{
     const response = await Events.getEventById(req.query.id);
     res.json(response);
 }));
-//likely want to rename this.
-app.get("/isGiver",asyncWrapper(async (req,res)=>{
-    let info;
-    try{
-        info = JSON.parse(req.query.data);
-    }catch{
-        res.json({status:"false",message:"Unable to parse json"});
-        return;
-    }
-    const results = await database.GiverInEvent(info.UserID,info.EventID);
-    res.json({status:results})
-    
-}));
-app.get("/isReciever",asyncWrapper(async (req,res)=>{
-    let info;
-    try{
-        info = JSON.parse(req.query.data);
-    }catch{
-        res.json({status:"false",message:"Unable to parse json"});
-        return;
-    }
-    const results = await database.RecieverInEvent(info.UserID,info.EventID);
-    res.json({status:results})
-    
-}));
+
 app.get("/getUsers",asyncWrapper(async (req,res)=>{
     const response = await Users.getUsers();
     res.json(response);

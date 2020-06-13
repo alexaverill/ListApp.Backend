@@ -50,7 +50,6 @@ async function hashPassword(passwordIn){
      return hashed;
 }
 async function createUser(name, password, email, birthday) {
-    //TODO limit to only one user per username
     let userCount;
     await Users.findAll({
         where:{
