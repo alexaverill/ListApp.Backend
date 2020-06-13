@@ -11,7 +11,7 @@ const ListItemModel = require('./data_models/list_item');
 //     dialect:'sqlite',
 //     storage:'./database.sqlite'
 // })
-this.sequelize = new Sequelize(databaseInfo.databaseName, databaseInfo.databaseUserName, databaseInfo.databasePassword, {
+const sequelize = new Sequelize(databaseInfo.databaseName, databaseInfo.databaseUserName, databaseInfo.databasePassword, {
     host: '127.0.0.1',
     port: 6603,
     dialect: 'mysql',
