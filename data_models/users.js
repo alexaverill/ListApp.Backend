@@ -14,6 +14,9 @@ module.exports = (sequelize, type)=>{
             type: type.STRING,
             allowNull: false
         },
+        passwordReset:{
+            type:type.BOOLEAN
+        },
         email: {
             type: type.STRING,
             allowNull: false
@@ -21,6 +24,9 @@ module.exports = (sequelize, type)=>{
         birthday: {
             type: type.DATE, 
             allowNull: false
+        },
+        isAdmin:{
+            type:type.BOOLEAN
         }
     });
 }

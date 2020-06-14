@@ -18,6 +18,9 @@ module.exports = (sequelize, type) => {
         },
         comments: {
             type: type.STRING
+        },
+        active:{
+            type:type.INTEGER
         }
 
     });

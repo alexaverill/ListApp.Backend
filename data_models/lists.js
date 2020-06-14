@@ -3,6 +3,9 @@ module.exports = (sequelize, type)=>{
         listName: {
             type: type.STRING,
             allowNull: false
+        },
+        active:{
+            type:type.BOOLEAN
         }
     });
 }
