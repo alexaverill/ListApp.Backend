@@ -1,7 +1,7 @@
 const {Users,sequelize} = require('./databaseConnection');
 const bcrypt = require('bcrypt');
 async function validatePassword(usernameIn,passwordIn){
-    console.log(passwordIn);
+    
     let userData;
     //attempt to get user row.
     await Users.findAll({
