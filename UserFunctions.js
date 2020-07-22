@@ -84,6 +84,16 @@ async function getUsers() {
     }).then(people => { response = people });
     return response;
 }
+async function getUser(id){
+    let username = await Users.findAll({
+        where:{
+            id:id
+        },
+        attributes:["username"]
+    });
+    
+    return username;
+}
 module.exports = {
     getUsers,
     createUser,

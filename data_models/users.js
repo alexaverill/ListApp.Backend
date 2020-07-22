@@ -1,11 +1,5 @@
 module.exports = (sequelize, type)=>{
     return sequelize.define('users', {
-        id: {
-            type: type.INTEGER,
-            field: 'ID',
-            primaryKey: true
-        },
-        // attributes
         username: {
             type: type.STRING,
             allowNull: false

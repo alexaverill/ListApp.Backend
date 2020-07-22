@@ -20,7 +20,7 @@ module.exports = (sequelize, type) => {
             type: type.STRING
         },
         active:{
-            type:type.INTEGER
+            type:type.BOOLEAN
         }
 
     });

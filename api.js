@@ -109,7 +109,10 @@ app.get("/getUsers",asyncWrapper(async (req,res)=>{
     const response = await Users.getUsers();
     res.json(response);
 }));
-
+app.post("/getUser",asyncWrapper(async (req,res)=>{
+    const response = await Users.getUser(req.body.id);
+    res.json(response);
+}));
 app.post("/createList",asyncWrapper(async(req,res)=>{
     let response = await Lists.createList(req.body.event,req.body.name,req.body.userID);
     res.json(response);
