@@ -85,18 +85,20 @@ async function getUsers() {
     return response;
 }
 async function getUser(id){
+    console.log(id);
     let username = await Users.findAll({
         where:{
             id:id
         },
         attributes:["username"]
     });
-    
+    console.log(username);
     return username;
 }
 module.exports = {
     getUsers,
     createUser,
     validatePassword,
-    getUsers
+    getUsers,
+    getUser
 }

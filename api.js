@@ -3,7 +3,7 @@ const tokenTools = require('./tokenUtils');
 const express = require('express');
 const Database = require('./databaseConnection');
 const app = express();
-const port = 5000;
+const port = 3001;
 const cors = require('cors');
 
 const Users = require('./UserFunctions');
@@ -17,7 +17,7 @@ app.use(cors())
 // 	return next();
 // });
 app.use(function(req,res,next){
-    //return next();
+    return next();
     console.log(req.originalUrl);
     if(req.originalUrl === '/authenticate' || req.originalUrl ==='/verify'){
         console.log(req.originalUrl);
@@ -110,6 +110,7 @@ app.get("/getUsers",asyncWrapper(async (req,res)=>{
     res.json(response);
 }));
 app.post("/getUser",asyncWrapper(async (req,res)=>{
+    console.log(req.body);
     const response = await Users.getUser(req.body.id);
     res.json(response);
 }));
